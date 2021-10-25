@@ -1,22 +1,22 @@
 CFLAGS = -g -Wall -Wextra
 
-lextest: main.o lex.yy.o errormsg.o utilities.o
-	gcc $(CFLAGS) -o lextest main.o lex.yy.o errormsg.o utilities.o
+tiger: main.o lex.yy.o errormsg.o utilities.o
+	gcc $(CFLAGS) -o tiger main.o lex.yy.o errormsg.o utilities.o
 
-main.o: main.c tokens.h errormsg.h utilities.h
-	gcc $(CFLAGS) -c main.c
+main.o: src/main.c include/tokens.h include/errormsg.h include/utilities.h
+	gcc $(CFLAGS) -c src/main.c
 
-errormsg.o: errormsg.c errormsg.h utilities.h
-	gcc $(CFLAGS) -c errormsg.c
+errormsg.o: src/errormsg.c include/errormsg.h include/utilities.h
+	gcc $(CFLAGS) -c src/errormsg.c
 
-lex.yy.o: lex.yy.c tokens.h errormsg.h utilities.h
+lex.yy.o: lex.yy.c include/tokens.h include/errormsg.h include/utilities.h
 	gcc $(CFLAGS) -c lex.yy.c
 
-lex.yy.c: tiger.lex
-	flex tiger.lex
+utilities.o: src/utilities.c include/utilities.h
+	gcc $(CFLAGS) -c src/utilities.c
 
-utilities.o: utilities.c utilities.h
-	gcc $(CFLAGS) -c utilities.c
+lex.yy.c: src/tiger.lex
+	flex src/tiger.lex
 
 clean: 
-	rm -f a.out utilities.o driver.o lex.yy.o lex.yy.c errormsg.o
+	rm -f tiger utilities.o main.o lex.yy.o lex.yy.c errormsg.o

@@ -1,5 +1,5 @@
-#include "utilities.h"
-#include "errormsg.h"
+#include "../include/utilities.h"
+#include "../include/errormsg.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>

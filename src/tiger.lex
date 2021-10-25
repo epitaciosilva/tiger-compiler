@@ -1,7 +1,7 @@
 %{
-    #include "utilities.h"
-    #include "tokens.h"
-    #include "errormsg.h"
+    #include "include/utilities.h"
+    #include "include/tokens.h"
+    #include "include/errormsg.h"
 
     int offSet = 1;
 
@@ -51,7 +51,7 @@ type {update(); return TYPE;}
 "," {update(); return COMMA;}
 ":" {update(); return COLON;}
 ";" {update(); return SEMICOLON;}
-"(" {update(); return LPARENTHESIS;}
+"(" {update(); yylval.sval=yytext; return LPARENTHESIS;}
 ")" {update(); return RPARENTHESIS;}
 "[" {update(); return LBRACKET;}
 "]" {update(); return RBRACKET;}
@@ -71,6 +71,8 @@ type {update(); return TYPE;}
 "&" {update(); return AND;}
 "|" {update(); return OR;}
 ":=" {update(); return ASSIGN;}
+
+"//".*   /* comments */
 
 [\r\t] {update(); continue;}
 [\n] {update(); EM_newline(); continue;}

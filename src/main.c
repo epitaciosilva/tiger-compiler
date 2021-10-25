@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include "utilities.h"
-#include "errormsg.h"
-#include "tokens.h"
+#include <stdlib.h>
+#include "../include/utilities.h"
+#include "../include/errormsg.h"
+#include "../include/tokens.h"
 
 YYSTYPE yylval;
 
