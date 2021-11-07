@@ -42,13 +42,13 @@ int main(int argc, char **argv) {
     switch(tok) {
     case ID: 
     case STRING:
-      printf("%10s %4d %s\n",tokname(tok),EM_tokPos,yylval.sval);
+      printf("%10s %4d %s\n", tokname(tok), EM_tokPos, yylval.sval);
       break;
     case INT:
-      printf("%10s %4d %d\n",tokname(tok),EM_tokPos,yylval.ival);
+      printf("%10s %4d %d\n", tokname(tok), EM_tokPos, yylval.ival);
       break;
     default:
-      printf("%10s %4d\n",tokname(tok),EM_tokPos);
+      printf("%10s %4d\n", tokname(tok), EM_tokPos);
     }
   }
   return 0;
