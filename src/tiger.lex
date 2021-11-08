@@ -3,6 +3,8 @@
     #include "include/tokens.h"
     #include "include/errormsg.h"
 
+    int commentLevel=0;
+
     int offSet = 1;
 
     int yywrap(void){
@@ -16,6 +18,9 @@
     }
 %}
 
+START_COMMENT "/*"
+END_COMMENT "*/"
+
 DIGITS [0-9]+
 STRINGS \".*\"
 IDS [a-zA-Z][a-zA-Z0-9]*
@@ -23,6 +28,7 @@ IDS [a-zA-Z][a-zA-Z0-9]*
 %option nounput
 %option noinput
 
+%x COMMENT_SUBAUTOMATO COMMENT
 %%
 
 {DIGITS} {update(); yylval.ival=atoi(yytext); return INT;}
@@ -72,10 +78,21 @@ type {update(); return TYPE;}
 "|" {update(); return OR;}
 ":=" {update(); return ASSIGN;}
 
-"//".*   /* comments */
+    /* single line comment */
+"//".*   
+
+    /* multiline comments - cria o subautomato COMMENT ao encontrar o estado inicial START_COMMENT */
+{START_COMMENT} {update(); commentLevel++; BEGIN COMMENT;}
+<COMMENT>{END_COMMENT} {update(); commentLevel--; if(commentLevel == 0) BEGIN 0;}
+<COMMENT>.+ {update();}
+<COMMENT><<EOF>> {update(); EM_error(EM_tokPos, "you must close a comment opened before"); yyterminate();}
+
+"*/" { update(); EM_error(EM_tokPos, "you must open a comment before close it"); yyterminate(); }
 
 [\r\t] {update(); continue;}
 [\n] {update(); EM_newline(); continue;}
 " " {update(); continue;}
-.	 {update(); EM_error(EM_tokPos,"illegal token");}
+.	 {update(); EM_error(EM_tokPos, "illegal token");}
+
+
 %%
