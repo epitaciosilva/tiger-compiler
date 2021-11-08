@@ -87,7 +87,7 @@ type {update(); return TYPE;}
 <COMMENT>.+ {update();}
 <COMMENT><<EOF>> {update(); EM_error(EM_tokPos, "you must close a comment opened before"); yyterminate();}
 
-"*/" { update(); EM_error(EM_tokPos, "you must open a comment before close it"); yyterminate(); }
+"*/" { update(); EM_error(EM_tokPos, "you must open a comment before close it"); continue; }
 
 [\r\t] {update(); continue;}
 [\n] {update(); EM_newline(); continue;}
