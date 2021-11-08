@@ -1,0 +1,29 @@
+let
+    type intArray = array of int
+    var N := 10
+    var listArray := [10,1,9,3,4,7,5,6,2,8]
+
+    function partition(list: intArray, begin: int, last: int): int =
+        var pivot := list[last]
+        var i:= begin-1
+        for j := begin to last-1
+            do if list[j] <= pivot then
+                i := i + 1
+                var swapTemp := list[i]
+                list[i] := list[j]
+                list[j] := swapTemp
+
+        var swapTemp := list[i+1]
+        list[i+1] := list[last]
+        list[last] := swapTemp
+
+        return i+1;
+
+    function quickSort(list: intArray, begin: int, last: int) = 
+        if begin < last then
+            var partitionIndex: int := partition(list, begin, last)
+            quickSort(list, begin, partitionIndex-1)
+            quickSort(list, partitionIndex+1, begin)
+    
+    in quickSort(listArray, 0, N)
+end

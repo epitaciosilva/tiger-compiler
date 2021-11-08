@@ -1,0 +1,52 @@
+let
+    type intArray = array of int
+    var N := 10
+    var listArray := [10,1,9,3,4,7,5,6,2,8]
+    
+    function merge(arr: intArray, l: intArray, r: intArray, left: int, right: int) = 
+        var i := 0
+        var j := 0
+        var k := 0
+
+        // sort and merge subarrays
+        while i < left & j < right do 
+            if l[i] <= r[j] then 
+                arr[k] = l[i]
+                i := i+1
+            else
+                a[k] = r[j]
+                j := j+1
+            k := k+1
+
+        while i < left do
+            a[k] = l[i]
+            i := i+1
+            k := k+1
+        
+        while j < right do
+            a[k] = l[j]
+            j := j+1
+            k := k+1
+
+    function mergeSort(arr: intArray, int n) = 
+        if n > 2 then
+            var mid := n /2
+
+            // create subarrays
+            var L := intArray[mid] of 0
+            var R := intArray[n-mid] of 0
+
+            // Copy data to temp arrays
+            for i := 0 to mid-1 do
+                L[i] = arr[i]
+
+            for j := mid to n-1 do
+                R[j-mid] = arr[j]
+
+            mergeSort(L, mid)
+            mergeSort(R, n - mid)
+
+            merge(arry, L, R, mid, n - mid)
+
+    in mergeSort(listArray, N)
+end
