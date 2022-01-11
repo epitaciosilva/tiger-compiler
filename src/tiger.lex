@@ -1,7 +1,7 @@
 %{
-    #include "include/utilities.h"
-    #include "include/tokens.h"
-    #include "include/errormsg.h"
+    #include "../include/utilities.h"
+    #include "../include/tokens.h"
+    #include "../include/errormsg.h"
 
     int commentLevel=0;
 
@@ -27,6 +27,7 @@ IDS [a-zA-Z][a-zA-Z0-9]*
 
 %option nounput
 %option noinput
+%option yylineno
 
 %x COMMENT_SUBAUTOMATO COMMENT
 %%
