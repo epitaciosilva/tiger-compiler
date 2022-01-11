@@ -69,7 +69,7 @@ type {update(); return TYPE;}
 "-" {update(); return MINUS;}
 "*" {update(); return TIMES;}
 "/" {update(); return DIVIDE;}
-"=" {update(); return EQ;}
+"==" {update(); return EQ;}
 "<>" {update(); return NEQ;}
 "<"  {update(); return LT;}
 "<=" {update(); return LE;}
