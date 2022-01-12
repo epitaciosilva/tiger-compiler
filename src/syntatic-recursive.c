@@ -142,6 +142,7 @@ void ArrayRecordFactor()
         Exp();
         break;
     default:
+        //printf("%s", "Erro no programa 13");
         error();
     }
 }
@@ -151,7 +152,7 @@ void FactorFact1()
     switch (tok)
     {
     case ASSIGN:
-        eat(ID);
+        eat(ASSIGN);
         Exp();
         break;
     default:
@@ -178,10 +179,11 @@ void FactotFact()
         ArrayRecordFactor();
         break;
     case ASSIGN:
-        ArrayRecordFactor();
+        LValuePrime();
+        FactorFact1();
         break;
     default:
-        error();
+        break;
     }
 }
 
@@ -453,6 +455,7 @@ void Ty(){
         eat(ID);
         break;
     default:
+        //printf("%s", "Erro no programa 14");
         error();
     }
 }
@@ -508,6 +511,7 @@ void Dec(){
         Vardec();
         break;
     default:
+        //printf("%s", "Erro no programa 15");
         error();
     }
 }
@@ -519,21 +523,17 @@ void Decs()
     case TYPE:
         Dec();
         Decs();
-        Program();
         break;
     case FUNCTION:
         Dec();
         Decs();
-        Program();
         break;
     case VAR:
         Dec();
         Decs();
-        Program();
         break;
     default:
-        //printf("%s", "Erro no programa 9");
-        error();
+       Program();
     }
 }
 
@@ -601,14 +601,12 @@ void Exp()
         eat(THEN);
         Exp();
         IfFactor();
-        Program();
         break;
     case WHILE:
         eat(WHILE);
         Exp();
         eat(DO);
         Exp();
-        Program();
         break;
     case FOR:
         eat(FOR);
@@ -619,15 +617,12 @@ void Exp()
         Exp();
         eat(DO);
         Exp();
-        Program();
         break;
     case BREAK:
         eat(BREAK);
-        Program();
         break;
     default:
-        //printf("%s", "Erro no programa 11");
-        error();
+        Program();
     }
 }
 
