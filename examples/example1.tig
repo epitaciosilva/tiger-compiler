@@ -1,0 +1,4 @@
+let
+    var helloWorld := 10
+    in 1;
+end

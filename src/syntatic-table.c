@@ -32,24 +32,36 @@
 #define TYFIELDS_LIST 29
 #define CIFRAO 30
 
-int tok, seq_queue = 0;
+int tok, seq_stack = 0;
 YYSTYPE yylval;
 
+string toknames[] = {
+    "ID", "STRING", "INT", "ARRAY", "IF", "THEN", "ELSE", "WHILE", "FOR",
+    "TO", "DO", "LET", "IN", "END", "OF", "BREAK", "NIL", "FUNCTION",
+    "VAR", "TYPE", "COMMA", "COLON", "SEMICOLON", "LPAREN",
+    "RPAREN", "LBRACK", "RBRACK", "LBRACE", "RBRACE", "DOT", "PLUS",
+    "MINUS", "TIMES", "DIVIDE", "EQ", "NEQ", "LT", "LE", "GT", "GE",
+    "AND", "OR", "ASSIGN"};
+
+string tokname(int tok)
+{
+    return tok < 257 || tok > 299 ? "BAD_TOKEN" : toknames[tok - 257];
+}
 
 int yylex(void);
 int table[30][300][8] = {0};
-int queue[100] = {0};
+int stack[100] = {0};
 
-void insert_queue(int val) {
-    queue[seq_queue++] = val;
+void insert_stack(int val) {
+    stack[seq_stack++] = val;
 }
 
-int get_top_queue() {
-    return queue[seq_queue-1];
+int get_top_stack() {
+    return stack[seq_stack-1];
 }
 
-void remove_queue() {
-    queue[seq_queue--] = 0;
+void remove_stack() {
+    stack[seq_stack--] = 0;
 }
 
 void create_table() {
@@ -394,40 +406,166 @@ void create_table() {
     table[LVALUE1][LPARENTHESIS][2] = RPARENTHESIS;
     table[LVALUE1][DOT][0] = DOT;
     table[LVALUE1][DOT][1] = ID;
+
+    // IF_FACTOR
+    table[IF_FACTOR][CIFRAO][0] = -1;
+    table[IF_FACTOR][COMMA][0] = -1;
+    table[IF_FACTOR][RBRACE][0] = -1;
+    table[IF_FACTOR][VAR][0] = -1;
+    table[IF_FACTOR][EQ][0] = -1;
+    table[IF_FACTOR][RPARENTHESIS][0] = -1;
+    table[IF_FACTOR][FUNCTION][0] = -1;
+    table[IF_FACTOR][TYPE][0] = -1;
+    table[IF_FACTOR][SEMICOLON][0] = -1;
+    table[IF_FACTOR][ELSE][0] = -1;
+    table[IF_FACTOR][RBRACKET][0] = -1;
+    table[IF_FACTOR][DIVIDE][0] = -1;
+    table[IF_FACTOR][TIMES][0] = -1;
+    table[IF_FACTOR][MINUS][0] = -1;
+    table[IF_FACTOR][PLUS][0] = -1;
+    table[IF_FACTOR][LT][0] = -1;
+    table[IF_FACTOR][GT][0] = -1;
+    table[IF_FACTOR][NEQ][0] = -1;
+    table[IF_FACTOR][GE][0] = -1;
+    table[IF_FACTOR][LE][0] = -1;
+    table[IF_FACTOR][AND][0] = -1;
+    table[IF_FACTOR][OR][0] = -1;
+    table[IF_FACTOR][END][0] = -1;
+    table[IF_FACTOR][IN][0] = -1;
+    table[IF_FACTOR][DO][0] = -1;
+    table[IF_FACTOR][TO][0] = -1;
+    table[IF_FACTOR][THEN][0] = -1;
+
+    // EXPS
+    table[EXPS][ID][0] = EXP;
+    table[EXPS][ID][1] = EXPS_LIST;
+    table[EXPS][RPARENTHESIS][0] = EXP;
+    table[EXPS][RPARENTHESIS][1] = EXPS_LIST;
+    table[EXPS][LPARENTHESIS][0] = EXP;
+    table[EXPS][LPARENTHESIS][1] = EXPS_LIST;
+    table[EXPS][SEMICOLON][0] = EXP;
+    table[EXPS][SEMICOLON][1] = EXPS_LIST;
+    table[EXPS][STRING][0] = EXP;
+    table[EXPS][STRING][1] = EXPS_LIST;
+    table[EXPS][INT][0] = EXP;
+    table[EXPS][INT][1] = EXPS_LIST;
+    table[EXPS][NIL][0] = EXP;
+    table[EXPS][NIL][1] = EXPS_LIST;
+    table[EXPS][END][0] = EXP;
+    table[EXPS][END][1] = EXPS_LIST;
+    table[EXPS][LET][0] = EXP;
+    table[EXPS][LET][1] = EXPS_LIST;
+    table[EXPS][BREAK][0] = EXP;
+    table[EXPS][BREAK][1] = EXPS_LIST;
+    table[EXPS][FOR][0] = EXP;
+    table[EXPS][FOR][1] = EXPS_LIST;
+    table[EXPS][WHILE][0] = EXP;
+    table[EXPS][WHILE][1] = EXPS_LIST;
+    table[EXPS][IF][0] = EXP;
+    table[EXPS][IF][1] = EXPS_LIST;
+
+    // EXPS_LIST
+    table[EXPS_LIST][RPARENTHESIS][0] = -1;
+    table[EXPS_LIST][SEMICOLON][0] = SEMICOLON;
+    table[EXPS_LIST][SEMICOLON][1] = EXPS;
+    table[EXPS_LIST][END][0] = -1;
+
+    // DECS
+    table[DECS][CIFRAO][0] = -1;
+    table[DECS][VAR][0] = DEC;
+    table[DECS][VAR][1] = DECS;
+    table[DECS][FUNCTION][0] = EXP;
+    table[DECS][FUNCTION][1] = EXPS_LIST;
+    table[DECS][TYPE][0] = EXP;
+    table[DECS][TYPE][1] = EXPS_LIST;
+    table[DECS][IN][0] = -1;
+
+    // DEC
+    table[DEC][VAR][0] = VARDEC;
+    table[DEC][FUNCTION][0] = FUNCTION;
+    table[DEC][FUNCTION][1] = ID;
+    table[DEC][FUNCTION][2] = LPARENTHESIS;
+    table[DEC][FUNCTION][3] = TYFIELDS;
+    table[DEC][FUNCTION][4] = RPARENTHESIS;
+    table[DEC][FUNCTION][5] = RESULT_TYPE;
+    table[DEC][FUNCTION][6] = EQ;
+    table[DEC][FUNCTION][7] = EXP;
+    table[DEC][TYPE][0] = TYPE;
+    table[DEC][TYPE][1] = ID;
+    table[DEC][TYPE][2] = EQ;
+    table[DEC][TYPE][3] = TY;
+
+    // VARDEC
+    table[VARDEC][VAR][0] = VAR;
+    table[VARDEC][VAR][1] = ID;
+    table[VARDEC][VAR][2] = RESULT_TYPE;
+    table[VARDEC][VAR][3] = ASSIGN;
+    table[VARDEC][VAR][4] = EXP;
+
+    // RESULT_TYPE
+    table[RESULT_TYPE][COLON][0] = COLON;
+    table[RESULT_TYPE][COLON][1] = ID;
+    table[RESULT_TYPE][ASSIGN][0] = -1;
+    table[RESULT_TYPE][EQ][0] = -1;
+
+    // TY
+    table[TY][ID][0] = ID;
+    table[TY][OF][0] = ARRAY;
+    table[TY][OF][1] = OF;
+    table[TY][OF][2] = ID;
+    table[VARDEC][LBRACE][0] = LBRACE;
+    table[VARDEC][LBRACE][1] = TYFIELDS;
+    table[VARDEC][LBRACE][2] = RBRACE;
+
+    // TYFIELDS
+    table[TYFIELDS][ID][0] = ID;
+    table[TYFIELDS][ID][1] = COLON;
+    table[TYFIELDS][ID][2] = ID;
+    table[TYFIELDS][ID][3] = TYFIELDS_LIST;
+    table[TYFIELDS][RBRACE][0] = -1;
+    table[TYFIELDS][RPARENTHESIS][0] = -1;
+
+    // TYFIELDS_LIST
+    table[TYFIELDS_LIST][COMMA][0] = COMMA;
+    table[TYFIELDS_LIST][COMMA][1] = TYFIELDS;
+    table[TYFIELDS_LIST][RBRACE][0] = -1;
+    table[TYFIELDS_LIST][RPARENTHESIS][0] = -1;
 }
 
 void Program() {
-    insert_queue(PROGRAM);
-    int temp;
+    insert_stack(PROGRAM);
+    int top, check = 1;
 
-    while(1 == 1) {
+    while(1) {
         tok = yylex();
-        temp = get_top_queue();
-        printf("%d  %d\n", tok, temp);
-
-        if(temp == -1) {
-            remove_queue();
-        }
-        if(temp == tok) {
-            remove_queue();
-            continue;
-        } else if(tok == 0) {
-            remove_queue();
-            if (seq_queue == 0) {
-                printf("Success!!!");
+        if(tok == 0) {
+            if (seq_stack == 0) {
+                printf("Success!!!\n");
             } else {
                 printf("Error!\n");
             }
             break;
         }
-        if(table[temp][tok][0] != 0) {
-            for(int i = 0; i < 8; i++) {
-                if(table[temp][tok][i] != 0) {
-                    printf("\n%d\n\n", table[temp][tok][i]);
-                    insert_queue(table[temp][tok][i]);
-                } else {
-                    break;
+
+        while(1) { 
+            top = get_top_stack();
+            printf("%d %s  %d\n", tok, tokname(tok), top);
+
+            if(top == tok) {
+                remove_stack();
+                break;
+            }
+            if(table[top][tok][0] != 0) {
+                remove_stack();
+                for(int i = 7; i >= 0 ; i--) {
+                    if(table[top][tok][i] > 0) {
+                        printf("%d\n", table[top][tok][i]);
+                        insert_stack(table[top][tok][i]);
+                    }
                 }
+            } else {
+                printf("Error!\n");
+                exit(1);
             }
         }
     }
@@ -449,8 +587,8 @@ int main (int argc, char **argv)
 
     Program();
 
-    for(int i = 0; i < seq_queue; i++) {
-        printf("%d\n", queue[i]);
+    for(int i = 0; i < seq_stack; i++) {
+        printf("%d\n", stack[i]);
     }
 }
 
