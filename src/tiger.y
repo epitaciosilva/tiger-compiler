@@ -26,16 +26,14 @@ exp: NIL
     | INTEGER
     | STRING
 
-    | typeid LBRACKET exp RBRACKET OF exp
-    | typeid LBRACE typeid_fac
+    | ID lvalue_exp OF exp
+    | ID LBRACE ID_fac
     
-    | NEW typeid
+    | NEW ID
 
     | lvalue
 
-    | ID LPARENTHESIS funcall_fac
-
-    | lvalue DOT ID LPARENTHESIS methodcall_fac
+    | lvalue LPARENTHESIS call_fac
 
     | MINUS exp
     | exp AND exp
@@ -59,21 +57,19 @@ exp: NIL
     | BREAK
     | LET decs IN exps END
 
-    typeid_fac: RBRACE | ID EQ exp typeid_aux RBRACE
-    typeid_aux: | COMMA ID EQ exp typeid_aux
+    ID_fac: RBRACE | ID EQ exp ID_aux RBRACE
+    ID_aux: | COMMA ID EQ exp ID_aux
 
-    methodcall_fac: RPARENTHESIS | exp methodcall_aux
-    methodcall_aux: | COMMA exp methodcall_aux
-
-    funcall_fac: RPARENTHESIS | exp funcall_aux
-    funcall_aux: | COMMA exp funcall_aux
+    call_fac: RPARENTHESIS | exp call_aux
+    call_aux: | COMMA exp call_aux
 
     if_opc: | ELSE exp
 
     lvalue: ID
     | lvalue DOT ID
-    | lvalue LBRACKET exp RBRACKET
+    | lvalue lvalue_exp
 
+    lvalue_exp: LBRACKET exp RBRACKET
 
     exps: | exp exps_list
     exps_list: | SEMICOLON exp
@@ -84,7 +80,7 @@ exp: NIL
     | vardec
     | FUNCTION ID LPARENTHESIS tyfields RPARENTHESIS dec_factor
 
-    dec_factor: COLON typeid EQ exp
+    dec_factor: COLON ID EQ exp
     | EQ exp
 
     tydeclist: tydec | tydec tydeclist
@@ -93,19 +89,17 @@ exp: NIL
 
     vardec: VAR ID vardec_opc
 
-    vardec_opc: COLON typeid ASSIGN exp
+    vardec_opc: COLON ID ASSIGN exp
     | ASSIGN exp
 
-    ty: typeid
+    ty: ID
         | LBRACKET tyfields RBRACKET
-        | ARRAY OF typeid
+        | ARRAY OF ID
 
-    tyfields: ID COLON typeid tyfields_factor | 
+    tyfields: ID COLON ID tyfields_factor | 
     tyfields_factor: tyfields_aux |
-    tyfields_aux: COMMA ID COLON typeid tyfields_aux_factor
+    tyfields_aux: COMMA ID COLON ID tyfields_aux_factor
     tyfields_aux_factor: tyfields_aux | 
-
-    typeid: ID
 %%
 
 void yyerror(char *c){

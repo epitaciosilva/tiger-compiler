@@ -73,3 +73,15 @@ void EM_start(string file_name){
         exit(1);
     }
 }
+
+void EM_reset(string fname) {
+ anyError = 0; 
+ filename = fname; 
+ lineNum = 1;
+ linePos = intList(0, NULL);
+ yyin = fopen(fname, "r");
+ if (!yyin) {
+    EM_error(0,"cannot open"); 
+    exit(1);
+}
+}

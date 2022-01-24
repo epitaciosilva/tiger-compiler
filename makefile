@@ -2,7 +2,7 @@ CFLAGS = -g -Wall -Wextra
 OBJECTS = lex.yy.o y.tab.o errormsg.o utilities.o
 
 parsetest: src/parsetest.o $(OBJECTS)
-	gcc -g -o $@ src/parsetest.o $(OBJECTS)
+	gcc $(CFLAGS) -o src/parsetest.o $(OBJECTS)
 
 # tiger: main.o lex.yy.o errormsg.o utilities.o
 # 	gcc $(CFLAGS) -o tiger main.o lex.yy.o errormsg.o utilities.o
@@ -31,4 +31,4 @@ y.tab.h: y.tab.c
 	echo "y.tab.h was created at the same time as y.tab.c"
 
 clean: 
-	rm -f tiger include/utilities.o main.o lex.yy.o lex.yy.c parsetest parsetest.o y.tab.o y.tab.c y.tab.h include/errormsg.o
+	rm -f tiger include/utilities.o main.o lex.yy.o lex.yy.c parsetest parsetest.o y.tab.o y.tab.c y.tab.h y.output include/errormsg.o
