@@ -1,7 +1,7 @@
 %{
-    #include "../include/utilities.h"
-    #include "../include/tokens.h"
-    #include "../include/errormsg.h"
+    #include "include/utilities.h"
+    #include "include/tokens.h"
+    #include "include/errormsg.h"
 
     int commentLevel=0;
 
