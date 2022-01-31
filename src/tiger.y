@@ -1,112 +1,150 @@
 %{
 #include <stdio.h>
 #include <ctype.h>
+#include "include/utilities.h"
+#include "include/errormsg.h"
 
 int yylex(void);
 
-void yyerror(char *c);
-
+void yyerror(char *s) {
+  EM_error(EM_tokPos, "test %s", s);
+}
 
 %}
 
-%token COMMA SEMICOLON LPARENTHESIS RPARENTHESIS LBRACKET RBRACKET 
+%union {
+	int pos;
+	int ival;
+	string sval;
+}
+
+%nonassoc LOW
+%nonassoc TYPE FUNCTION
+%nonassoc ID
+%nonassoc LBRACKET
+%nonassoc DO OF
+%nonassoc THEN
+%nonassoc ELSE
+%left SEMICOLON
+%nonassoc ASSIGN
+%left OR
+%left AND
+%nonassoc EQ NEQ LT LE GT GE
+%left PLUS MINUS
+%left TIMES DIVIDE
+%left UMINUS
+
+%token <sval> ID STRING
+%token <ival> INT
+
+%token 
+  COMMA COLON SEMICOLON LPARENTHESIS RPARENTHESIS LBRACKET RBRACKET 
   LBRACE RBRACE DOT 
-  PLUS MINUS TIMES DIVIDE LTE GTE EQ NEQ GT LT
+  PLUS MINUS TIMES DIVIDE EQ NEQ LT LE GT GE
   AND OR ASSIGN
   ARRAY IF THEN ELSE WHILE FOR TO DO LET IN END OF 
-  BREAK NIL 
-  FUNCTION VAR TYPE NEW ID INTEGER COLON STRING
+  BREAK NIL
+  FUNCTION VAR TYPE
+
+%start exp
 
 %%
 
-program: exp
-    | decs
+exp: lvalue
+   | NIL
+   | LPARENTHESIS RPARENTHESIS
+   | INT {printf("inteiro\n");}
+   | STRING
+   | MINUS exp %prec UMINUS
+   | func_call
+   | arith_exp
+   | cmp_exp
+   | bool_exp
+   | record_create
+   | array_create
+   | lvalue ASSIGN exp
+   | IF exp THEN exp ELSE exp
+   | IF exp THEN exp
+   | WHILE exp DO exp
+   | FOR ID ASSIGN exp TO exp DO exp
+   | BREAK
+   | LET decs IN expseq END
+   | LPARENTHESIS expseq RPARENTHESIS
 
-exp: NIL
-    | INTEGER
-    | STRING
+lvalue: ID
+      | ID LBRACKET exp RBRACKET
+      | lvalue LBRACKET exp RBRACKET
+      | lvalue DOT ID
 
-    | ID lvalue_exp OF exp
-    | ID LBRACE ID_fac
-    
-    | NEW ID
+func_call: ID LPARENTHESIS explist RPARENTHESIS
 
-    | lvalue
+explist:
+       | explist_nonempty
 
-    | lvalue LPARENTHESIS call_fac
+explist_nonempty: exp
+                | explist_nonempty COMMA exp
 
-    | MINUS exp
-    | exp AND exp
-    | exp LTE exp
-    | exp GTE exp
-    | exp EQ exp
-    | exp NEQ exp
-    | exp GT exp
-    | exp LT exp
-    | exp PLUS exp
-    | exp MINUS exp
-    | exp TIMES exp
-    | exp DIVIDE exp
-    | LPARENTHESIS exp RPARENTHESIS
+arith_exp: exp PLUS exp
+         | exp MINUS exp
+         | exp TIMES exp
+         | exp DIVIDE exp
 
-    | lvalue ASSIGN exp
+cmp_exp: exp EQ exp
+       | exp NEQ exp
+       | exp LT exp
+       | exp LE exp
+       | exp GT exp
+       | exp GE exp
 
-    | IF exp THEN exp if_opc
-    | WHILE exp DO exp
-    | FOR ID ASSIGN exp TO exp DO exp
-    | BREAK
-    | LET decs IN exps END
+bool_exp: exp AND exp
+        | exp OR exp
 
-    ID_fac: RBRACE | ID EQ exp ID_aux RBRACE
-    ID_aux: | COMMA ID EQ exp ID_aux
+record_create: ID LBRACE record_create_list RBRACE
 
-    call_fac: RPARENTHESIS | exp call_aux
-    call_aux: | COMMA exp call_aux
+record_create_list: 
+                  | record_create_list_nonempty
 
-    if_opc: | ELSE exp
+record_create_list_nonempty: record_create_field
+                           | record_create_list_nonempty COMMA record_create_field
 
-    lvalue: ID
-    | lvalue DOT ID
-    | lvalue lvalue_exp
+record_create_field: ID EQ exp
 
-    lvalue_exp: LBRACKET exp RBRACKET
+array_create: ID LBRACKET exp RBRACKET OF exp
 
-    exps: | exp exps_list
-    exps_list: | SEMICOLON exp
+decs:
+    | decs dec
 
-    decs: | decs dec
+dec: tydeclist
+   | vardec
+   | fundeclist
 
-    dec: tydeclist
-    | vardec
-    | FUNCTION ID LPARENTHESIS tyfields RPARENTHESIS dec_factor
+tydeclist: tydec %prec LOW
+         | tydec tydeclist
 
-    dec_factor: COLON ID EQ exp
-    | EQ exp
+tydec: TYPE ID EQ ty
 
-    tydeclist: tydec | tydec tydeclist
+ty: ID
+  | LBRACE tyfields RBRACE
+  | ARRAY OF ID
 
-    tydec: TYPE ID EQ ty
+tyfields:
+        | tyfields_nonempty
 
-    vardec: VAR ID vardec_opc
+tyfields_nonempty: tyfield
+                 | tyfields_nonempty COMMA tyfield
 
-    vardec_opc: COLON ID ASSIGN exp
-    | ASSIGN exp
+tyfield: ID COLON ID
 
-    ty: ID
-        | LBRACKET tyfields RBRACKET
-        | ARRAY OF ID
+vardec: VAR ID ASSIGN exp
+      | VAR ID COLON ID ASSIGN exp
 
-    tyfields: ID COLON ID tyfields_factor | 
-    tyfields_factor: tyfields_aux |
-    tyfields_aux: COMMA ID COLON ID tyfields_aux_factor
-    tyfields_aux_factor: tyfields_aux | 
-%%
+fundeclist: fundec %prec LOW
+          | fundec fundeclist
 
-void yyerror(char *c){
-    printf("Erro: %s\n", c);
-}
+fundec: FUNCTION ID LPARENTHESIS tyfields RPARENTHESIS EQ exp
+      | FUNCTION ID LPARENTHESIS tyfields RPARENTHESIS COLON ID EQ exp
 
-int main(){
-    yyparse();
-    return 0;
-}
+expseq: exp
+      | expseq SEMICOLON exp
+
+
