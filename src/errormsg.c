@@ -1,8 +1,9 @@
-#include "../include/utilities.h"
-#include "../include/errormsg.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+
+#include "include/utilities.h"
+#include "include/errormsg.h"
 
 bool anyError = 0;
 
@@ -72,16 +73,4 @@ void EM_start(string file_name){
         EM_error(0, "Cannot open file");
         exit(1);
     }
-}
-
-void EM_reset(string fname) {
- anyError = 0; 
- filename = fname; 
- lineNum = 1;
- linePos = intList(0, NULL);
- yyin = fopen(fname, "r");
- if (!yyin) {
-    EM_error(0,"cannot open"); 
-    exit(1);
-}
 }

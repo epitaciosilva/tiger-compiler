@@ -1,13 +1,13 @@
 %{
 #include <stdio.h>
-#include <ctype.h>
+
 #include "include/utilities.h"
 #include "include/errormsg.h"
 
-int yylex(void);
+int yylex(void); 
 
 void yyerror(char *s) {
-  EM_error(EM_tokPos, "test %s", s);
+  EM_error(EM_tokPos, "%s", s);
 }
 
 %}
@@ -21,7 +21,7 @@ void yyerror(char *s) {
 %nonassoc LOW
 %nonassoc TYPE FUNCTION
 %nonassoc ID
-%nonassoc LBRACKET
+%nonassoc LBRACK
 %nonassoc DO OF
 %nonassoc THEN
 %nonassoc ELSE
@@ -38,7 +38,7 @@ void yyerror(char *s) {
 %token <ival> INT
 
 %token 
-  COMMA COLON SEMICOLON LPARENTHESIS RPARENTHESIS LBRACKET RBRACKET 
+  COMMA COLON SEMICOLON LPAREN RPAREN LBRACK RBRACK 
   LBRACE RBRACE DOT 
   PLUS MINUS TIMES DIVIDE EQ NEQ LT LE GT GE
   AND OR ASSIGN
@@ -46,14 +46,16 @@ void yyerror(char *s) {
   BREAK NIL
   FUNCTION VAR TYPE
 
-%start exp
+%start program
 
 %%
 
+program: exp
+
 exp: lvalue
    | NIL
-   | LPARENTHESIS RPARENTHESIS
-   | INT {printf("inteiro\n");}
+   | LPAREN RPAREN
+   | INT
    | STRING
    | MINUS exp %prec UMINUS
    | func_call
@@ -69,14 +71,14 @@ exp: lvalue
    | FOR ID ASSIGN exp TO exp DO exp
    | BREAK
    | LET decs IN expseq END
-   | LPARENTHESIS expseq RPARENTHESIS
+   | LPAREN expseq RPAREN
 
 lvalue: ID
-      | ID LBRACKET exp RBRACKET
-      | lvalue LBRACKET exp RBRACKET
+      | ID LBRACK exp RBRACK
+      | lvalue LBRACK exp RBRACK
       | lvalue DOT ID
 
-func_call: ID LPARENTHESIS explist RPARENTHESIS
+func_call: ID LPAREN explist RPAREN
 
 explist:
        | explist_nonempty
@@ -109,7 +111,7 @@ record_create_list_nonempty: record_create_field
 
 record_create_field: ID EQ exp
 
-array_create: ID LBRACKET exp RBRACKET OF exp
+array_create: ID LBRACK exp RBRACK OF exp
 
 decs:
     | decs dec
@@ -141,10 +143,8 @@ vardec: VAR ID ASSIGN exp
 fundeclist: fundec %prec LOW
           | fundec fundeclist
 
-fundec: FUNCTION ID LPARENTHESIS tyfields RPARENTHESIS EQ exp
-      | FUNCTION ID LPARENTHESIS tyfields RPARENTHESIS COLON ID EQ exp
+fundec: FUNCTION ID LPAREN tyfields RPAREN EQ exp
+      | FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp
 
 expseq: exp
       | expseq SEMICOLON exp
-
-
