@@ -1,9 +1,9 @@
 %{
 #include <stdio.h>
-#include "util.h"
-#include "errormsg.h"
-#include "absyn.h"
-#include "symbol.h"
+#include "./include/util.h"
+#include "./include/errormsg.h"
+#include "./include/absyn.h"
+#include "./include/symbol.h"
 
 int yylex(void); /* function prototype */
 
