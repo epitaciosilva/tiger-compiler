@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "util.h"
-#include "errormsg.h"
-#include "parse.h"
-#include "absyn.h"
-#include "symbol.h"
-#include "prabsyn.h"
+#include "./include/util.h"
+#include "./include/errormsg.h"
+#include "./include/parse.h"
+#include "./include/absyn.h"
+#include "./include/symbol.h"
+#include "./include/prabsyn.h"
 
 int main(int argc, char **argv) {
   if (argc!=2) {fprintf(stderr,"usage: a.out filename\n"); exit(1);}

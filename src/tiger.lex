@@ -1,9 +1,9 @@
 %{
 #include <string.h>
-
-#include "include/utilities.h"
-#include "include/errormsg.h"
+#include "./include/util.h"
+#include "./include/absyn.h"
 #include "y.tab.h"
+#include "./include/errormsg.h"
 
 int comment_level=0;
 
@@ -12,7 +12,7 @@ int STRING_LENGTH_CAPACITY;
 string string_buffer;
 
 static void init_string_buffer() {
-  string_buffer = check_malloc(INITIAL_STRING_LENGTH);
+  string_buffer = checked_malloc(INITIAL_STRING_LENGTH);
   STRING_LENGTH_CAPACITY = INITIAL_STRING_LENGTH;
   string_buffer[0] = '\0';
 }
@@ -22,7 +22,7 @@ static void append_to_buffer(char c) {
   if(new_length >= STRING_LENGTH_CAPACITY) {
     char *tmp = string_buffer;
     STRING_LENGTH_CAPACITY *= 2;
-    string_buffer = check_malloc(STRING_LENGTH_CAPACITY);
+    string_buffer = checked_malloc(STRING_LENGTH_CAPACITY);
     strcpy(string_buffer, tmp);
   }
   string_buffer[new_length-1] = c;
@@ -38,20 +38,17 @@ int yywrap(void) {
 
 void adjust(void) {
   EM_tokPos=charPos;
-  charPos+=yyleng; // yyleng为lex每次提取的token长度
+  charPos+=yyleng; 
 }
 
 %}
 
 %START COMMENT INSTRING
 %%
-  /* ignore characters */
 <INITIAL>[ \t\r]	{adjust(); continue;}
 
-  /* newline */
 <INITIAL>\n       {adjust(); EM_newline(); continue;}
 
-  /* punctuation symbols */
 <INITIAL>","	  {adjust(); return COMMA;}
 <INITIAL>":"    {adjust(); return COLON;}
 <INITIAL>";"    {adjust(); return SEMICOLON;}
@@ -76,7 +73,6 @@ void adjust(void) {
 <INITIAL>"|"    {adjust(); return OR;}
 <INITIAL>":="   {adjust(); return ASSIGN;}
 
-  /* reserved words */
 <INITIAL>array    {adjust(); return ARRAY;}
 <INITIAL>if       {adjust(); return IF;}
 <INITIAL>then     {adjust(); return THEN;}
@@ -95,10 +91,8 @@ void adjust(void) {
 <INITIAL>var      {adjust(); return VAR;}
 <INITIAL>type     {adjust(); return TYPE;}
 
-  /* identifier */
 <INITIAL>[a-zA-Z][a-zA-Z0-9_]* {adjust(); yylval.sval=String(yytext); return ID;}
 
-  /* string literal */
 <INITIAL>\"   {adjust(); init_string_buffer(); BEGIN INSTRING;}
 <INSTRING>\"  {adjust(); yylval.sval = String(string_buffer); BEGIN 0; return STRING;}
 <INSTRING>\n  {adjust(); EM_error(EM_tokPos,"unclose string: newline appear in string"); yyterminate();}
@@ -116,15 +110,11 @@ void adjust(void) {
 <INSTRING>\\[ \n\t\f]+\\ {adjust(); int i; for(i = 0; yytext[i]; ++i) if(yytext[i] == '\n') EM_newline(); continue;}
 <INSTRING>[^\\\n\"]* {adjust(); char *tmp = yytext; while(*tmp) append_to_buffer(*tmp++);}
 
-  /* integer literal */
 <INITIAL>[0-9]+	 {adjust(); yylval.ival=atoi(yytext); return INT;}
 
-  /* comment part */
 "/*" {adjust(); comment_level+=1; BEGIN COMMENT;}
 <COMMENT>"*/" {adjust(); comment_level-=1; if(comment_level==0) BEGIN 0;}
 <COMMENT><<EOF>> {adjust(); EM_error(EM_tokPos,"unclose comment"); yyterminate();}
 <COMMENT>.    {adjust();}
 
-  /* unknown input */
 <INITIAL>.	 {adjust(); EM_error(EM_tokPos,"illegal token");}
-%%

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "include/utilities.h"
+#include "include/util.h"
 #include "include/errormsg.h"
 
 bool anyError = 0;
@@ -21,7 +21,7 @@ typedef struct intList {
 } *IntList;
 
 static IntList intList(int i, IntList rest){
-    IntList list = check_malloc(sizeof *list);
+    IntList list = checked_malloc(sizeof *list);
     list->i = i;
     list->rest = rest;
     return list;
