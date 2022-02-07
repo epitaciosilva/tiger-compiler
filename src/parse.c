@@ -1,26 +1,20 @@
-#include <stdio.h>
-#include <stdlib.h>
+/*
+ * parse.c - Parse source file.
+ */
 
-#include "include/utilities.h"
-#include "include/errormsg.h"
+#include <stdio.h>
+#include "symbol.h"
+#include "errormsg.h"
+#include "./include/parse.h"
 
 extern int yyparse(void);
+extern A_exp absyn_root;
 
-void parse(string fname) {
-  EM_start(fname);
-
-  if(yyparse() == 0) {
-    fprintf(stderr, "Parsing ok!!!\n");
-  } else {
-    fprintf(stderr, "Parsing failed!!!\n");
-  }
-}
-
-int main(int argc, char **argv) {
-  if (argc != 2) {
-    fprintf(stderr,"filename is missing. type ./parsetest filename\n"); 
-    exit(1);
-  }
-  parse(argv[1]);
-  return 0;
+/* parse source file fname; 
+   return abstract syntax data structure */
+A_exp parse(string fname) {
+  EM_reset(fname);
+  if (yyparse() == 0) /* parsing worked */
+    return absyn_root;
+  else return NULL;
 }
