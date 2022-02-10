@@ -1,19 +1,17 @@
-#include "../include/utilities.h"
-#include <stdlib.h>
+/*
+ * utilities.c - commonly used utilitiesity functions.
+ */
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include "./include/utilities.h"
 
-void *check_malloc(int length){
-    void *p = malloc(length);
-    if(!p){
-        fprintf(stderr, "\nProgram ran out of memory!\n");
-        exit(1);
-    }
-    return p;
-}
-
-string String(char *s){
-    string p = check_malloc(strlen(s)+1);
-    strcpy(p,s);
-    return p;
+void *check_malloc(int len) {
+  void *p = malloc(len);
+  if (!p) {
+    fprintf(stderr,"\nRan out of memory!\n");
+    exit(1);
+  }
+  return p;
 }
