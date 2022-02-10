@@ -1,8 +1,3 @@
-/*
- * table.c - Functions to manipulate generic tables.
- * Copyright (c) 1997 Andrew W. Appel.
- */
-
 #include <stdio.h>
 #include "./include/util.h"
 #include "./include/table.h"

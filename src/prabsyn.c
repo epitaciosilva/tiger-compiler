@@ -1,14 +1,8 @@
-/*
- * prabsyn.c - Print Abstract Syntax data structures. Most functions 
- *           handle an instance of an abstract syntax rule.
- */
-
 #include <stdio.h>
 #include "./include/util.h"
 #include "./include/symbol.h"
 #include "./include/prabsyn.h"
 
-/* local function prototypes */
 static void pr_var(FILE *out, A_var v, int d);
 static void pr_dec(FILE *out, A_dec v, int d);
 static void pr_ty(FILE *out, A_ty v, int d);
@@ -28,7 +22,6 @@ static void indent(FILE *out, int d) {
   for (i = 0; i <= d; i++) fprintf(out, " ");
 }
 
-/* Print A_var types. Indent d spaces. */
 static void pr_var(FILE *out, A_var v, int d) {
  indent(out, d);
  switch (v->kind) {
@@ -58,7 +51,6 @@ static void pr_oper(FILE *out, A_oper d) {
   fprintf(out, "%s", str_oper[d]);
 }
 
-/* Print A_exp types. Indent d spaces. */
 void pr_exp(FILE *out, A_exp v, int d) {
  indent(out, d);
  switch (v->kind) {

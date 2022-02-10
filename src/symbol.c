@@ -2,11 +2,10 @@
 #include <string.h>
 #include "./include/symbol.h"
 
-#define SIZE 109  /* should be prime */
+#define SIZE 109
 
 static S_symbol hashtable[SIZE];
 
-/* =============== SYMBOL ================ */
 
 static S_symbol mksymbol(string name, S_symbol next) {
   S_symbol s = checked_malloc(sizeof(*s));
@@ -25,11 +24,11 @@ S_symbol S_Symbol(string name) {
   int index = hash(name) % SIZE;
   S_symbol syms = hashtable[index], sym;
 
-  // symbol_lookup
+  // verificar symbol
   for(sym=syms; sym; sym=sym->next)
     if (!strcmp(sym->name,name)) return sym;
 
-  // symbol_insert
+  // inserir symbol
   sym = mksymbol(name,syms);
   hashtable[index]=sym;
   return sym;
@@ -38,8 +37,6 @@ S_symbol S_Symbol(string name) {
 string S_name(S_symbol sym) {
   return sym->name;
 }
-
-/* =============== TABLE ================ */
 
 S_table S_empty(void) { 
   return TAB_empty();
@@ -53,9 +50,6 @@ void *S_look(S_table t, S_symbol sym) {
   return TAB_look(t,sym);
 }
 
-/* =============== SCOPE ================ */
-
-
 static struct S_symbol_ marksym = {"<mark>",0};
 
 void S_beginScope(S_table t) {
@@ -65,11 +59,9 @@ void S_beginScope(S_table t) {
 void S_endScope(S_table t) {
   S_symbol s;
   do
-    s=TAB_pop(t);
+    s = TAB_pop(t);
   while(s != &marksym);
 }
-
-/* =============== SCOPE END ================ */
 
 void S_dump(S_table t, void (*show)(S_symbol sym, void *binding)) {
   TAB_dump(t, (void (*)(void *, void *)) show);
